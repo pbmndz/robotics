@@ -43,14 +43,14 @@ void loop() {
 
 //for motors
 if(distance<forward){
-    analogWrite(motorPin1, 0);
-    analogWrite(motorPin2, 180);
-    analogWrite(motorPin3, 0);
-    analogWrite(motorPin4, 180);.
+    analogWrite(motorPin1, 244);
+    analogWrite(motorPin2, 0);
+    analogWrite(motorPin3, 244);
+    analogWrite(motorPin4, 0);
 }
 else {
-    analogWrite(motorPin1, 0);
-    analogWrite(motorPin2, 0);
+    analogWrite(motorPin1, 244); //forward
+    analogWrite(motorPin2, 0); //reverse /left
     analogWrite(motorPin3, 0);
     analogWrite(motorPin4, 0);
 }
