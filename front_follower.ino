@@ -1,0 +1,58 @@
+
+//L293D
+//Motor A
+const int motorPin1  = 9;  // Pin 14 of L293
+const int motorPin2  = 10;  // Pin 10 of L293
+//Motor B
+const int motorPin3  = 6; // Pin  7 of L293
+const int motorPin4  = 5;  // Pin  2 of L293
+
+const int trigPin = 3;
+const int echoPin = 4;
+const int forward = 10;
+// defines variables
+long duration;
+int distance;
+
+void setup() {
+  //Set pins as outputs
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(motorPin3, OUTPUT);
+  pinMode(motorPin4, OUTPUT);
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+  Serial.begin(9600); // Starts the serial communication
+}
+void loop() {
+//for ultrasonic
+  // Clears the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2;
+  // Prints the distance on the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.println(distance);
+
+//for motors
+if(distance<forward){
+    analogWrite(motorPin1, 0);
+    analogWrite(motorPin2, 180);
+    analogWrite(motorPin3, 0);
+    analogWrite(motorPin4, 180);.
+}
+else {
+    analogWrite(motorPin1, 0);
+    analogWrite(motorPin2, 0);
+    analogWrite(motorPin3, 0);
+    analogWrite(motorPin4, 0);
+}
+
+}
