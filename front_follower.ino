@@ -49,7 +49,7 @@ if(distance<forward){
     analogWrite(motorPin4, 0);
 }
 else {
-    analogWrite(motorPin1, 244); //forward
+    analogWrite(motorPin1, 0); //forward
     analogWrite(motorPin2, 0); //reverse /left
     analogWrite(motorPin3, 0);
     analogWrite(motorPin4, 0);
