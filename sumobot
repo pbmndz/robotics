@@ -8,7 +8,7 @@ const int motorPin4  = 5;  // Pin  2 of L293
 
 const int trigPin = 3;
 const int echoPin = 4;
-const int forward = 10;
+const int forward = 15;
 // defines variables
 long duration;
 int distance;
@@ -48,10 +48,10 @@ if(distance<forward){
     analogWrite(motorPin4, 0);
 }
 else {
-    analogWrite(motorPin1, 244); //forward
-    analogWrite(motorPin2, 0); //reverse /left
-    analogWrite(motorPin3, 244);
+    analogWrite(motorPin1, 0); //forward
+    analogWrite(motorPin2, 244); //reverse /left
+    analogWrite(motorPin3, 0);
     analogWrite(motorPin4, 0);
 }
-
+ 
 }
