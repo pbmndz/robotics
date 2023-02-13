@@ -1,0 +1,165 @@
+//L293D
+//4 ultrasonic ultrasonic sensor 
+
+//Motor A
+const int motorPin1  = 9;  // Pin 14 of L293
+const int motorPin2  = 10;  // Pin 10 of L293
+
+//Motor B
+const int motorPin3  = 6; // Pin  7 of L293
+const int motorPin4  = 5;  // Pin  2 of L293
+
+// fornt sensor
+const int trigPinRightF = 3;
+const int echoPinRighF = 4;
+
+const int trigPinLefttF = 12;
+const int echoPinLeftF = 11;
+// fornt left and right
+
+const int trigPinRight = 2;
+const int echoPinRight = 13;
+
+const int trigPinLeft = 7;
+const int echoPinLeft = 8;
+ 
+// defines variables
+const int forward = 40 ;
+const int sides = 30 ;
+
+long durationRF;
+int distanceRF;
+long durationLF;
+int distanceLF;
+
+// left and right 
+long durationR;
+int distanceR;
+long durationL;
+int distanceL;
+
+void setup() {
+  //Set pins as outputs
+//  motor sensor
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(motorPin3, OUTPUT);
+  pinMode(motorPin4, OUTPUT);
+  
+//fornt sensor
+  pinMode(trigPinRightF, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPinRighF, INPUT); // Sets the echoPin as an Input
+  pinMode(trigPinLefttF, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPinLeftF, INPUT); // Sets the echoPin as an Input
+
+//left and right sensor
+  pinMode(trigPinRight, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPinRight, INPUT); // Sets the echoPin as an Input
+  pinMode(trigPinLeft, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPinLeft, INPUT); // Sets the echoPin as an Input
+  
+// Starts the serial communication
+  Serial.begin(9600); 
+  
+}
+void loop() {
+//for ultrasonic right fornt
+  // Clears the trigPin
+  digitalWrite(trigPinRightF, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPinRightF, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPinRightF, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  durationRF = pulseIn(echoPinRighF, HIGH);
+  // Calculating the distance
+  distanceRF = durationRF * 0.034 / 2;
+  // Prints the distance on the Serial Monitor
+
+
+//for ultrasonic left fornt
+  // Clears the trigPin
+  digitalWrite(trigPinLefttF, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPinLefttF, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPinLefttF, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  durationLF = pulseIn(echoPinLeftF, HIGH);
+  // Calculating the distance
+  distanceLF = durationLF * 0.034 / 2;
+  // Prints the distance on the Serial Monitor
+
+
+//for ultrasonic right 
+  // Clears the trigPin
+  digitalWrite(trigPinRight, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPinRight, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPinRight, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  durationR = pulseIn(echoPinRight, HIGH);
+  // Calculating the distance
+  distanceR = durationR * 0.034 / 2;
+
+
+//for ultrasonic left 
+  // Clears the trigPin
+  digitalWrite(trigPinLeft, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPinLeft, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPinLeft, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  durationL = pulseIn(echoPinLeft, HIGH);
+  // Calculating the distance
+  distanceL = durationL * 0.034 / 2;
+  // Prints the distance on the Serial Monitor
+
+  Serial.print("Distance R: ");
+  Serial.print(distanceR); 
+  Serial.print(" Distance L: ");
+  Serial.print(distanceL);
+
+  Serial.print(" Distance FR: ");
+  Serial.print(distanceRF); 
+  Serial.print(" Distance FL: ");
+  Serial.println(distanceLF);
+
+
+
+//for motors
+
+
+if(distanceLF and distanceRF < forward){
+    analogWrite(motorPin1, 244);
+    analogWrite(motorPin2, 0);
+    analogWrite(motorPin3, 244);
+    analogWrite(motorPin4, 0);
+}
+else if (distanceL < sides){
+    analogWrite(motorPin1, 244);//forward
+    analogWrite(motorPin2, 0); //reverse /left
+    analogWrite(motorPin3, 0);
+    analogWrite(motorPin4, 244);
+}
+
+else if (distanceR < sides){
+    analogWrite(motorPin1, 0);//forward
+    analogWrite(motorPin2, 244); //reverse /left
+    analogWrite(motorPin3, 244);
+    analogWrite(motorPin4, 0 );
+}
+else {
+    analogWrite(motorPin1, 244); //forward
+    analogWrite(motorPin2, 0); //reverse /left
+    analogWrite(motorPin3, 0);
+    analogWrite(motorPin4, 244);
+}
+ 
+}
