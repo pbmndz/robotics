@@ -1,0 +1,197 @@
+#include <Arduino.h>
+
+//L293D
+//4 ultrasonic ultrasonic sensor 
+
+class NewPing {
+  public:
+    NewPing(int TRIGGER_PIN, int ECHO_PIN, int MAX_DISTANCE ){
+      trigPin=TRIGGER_PIN;
+      echoPin=ECHO_PIN;
+      maxDistance=MAX_DISTANCE;
+
+      pinMode(trigPin,OUTPUT);
+      pinMode(echoPin,INPUT);
+    }
+
+    int ping_cm(){
+      // Clears the trigPin
+      digitalWrite(trigPin, LOW);
+      delayMicroseconds(2);
+      // Sets the trigPin on HIGH state for 10 micro seconds
+      digitalWrite(trigPin, HIGH);
+      delayMicroseconds(10);
+      digitalWrite(trigPin, LOW);
+      // Reads the echoPin, returns the sound wave travel time in microsecond
+      long duration = pulseIn(echoPin, HIGH);
+      // Calculating the distance
+      int distance =  duration*0.034/2;
+      // Checks out of range
+      if (distance>maxDistance){
+        distance=0;
+      }
+      return(distance);
+    }
+
+  private:
+    int trigPin;
+    int echoPin;
+    int maxDistance;
+};
+
+
+#define MAX_DISTANCE_FORNT 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define MAX_DISTANCE_SIDE 300
+#define ATTACK 20
+#define ATTACKside 10
+
+// FRONT 
+#define TRIGGER_PIN_FORNT_RIGHT  2 // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_FORNT_RIGHT      3 // Arduino pin tied to echo pin on the ultrasonic sensor.
+
+#define TRIGGER_PIN_FORNT_LEFT  11  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_FORNT_LEFT     12 // Arduino pin tied to echo pin on the ultrasonic sensor.
+
+//LEFT AND RIGTH
+#define TRIGGER_PIN_RIGHT  13 // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_RIGHT     10 // Arduino pin tied to echo pin on the ultrasonic sensor.
+
+#define TRIGGER_PIN_LEFT  5  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_LEFT     4 // Arduino pin tied to echo pin on the ultrasonic sensor.
+
+
+NewPing sonar_front_right(TRIGGER_PIN_FORNT_RIGHT, ECHO_PIN_FORNT_RIGHT, MAX_DISTANCE_FORNT); // NewPing setup of pins and maximum distance.
+NewPing sonar_fornt_left(TRIGGER_PIN_FORNT_LEFT, ECHO_PIN_FORNT_LEFT, MAX_DISTANCE_FORNT); // NewPing setup of pins and maximum distance.
+NewPing sonar_right(TRIGGER_PIN_RIGHT, ECHO_PIN_RIGHT, MAX_DISTANCE_SIDE); // NewPing setup of pins and maximum distance.
+NewPing sonar_left(TRIGGER_PIN_LEFT, ECHO_PIN_LEFT, MAX_DISTANCE_SIDE); // NewPing setup of pins and maximum distance.
+ 
+//Motor A
+const int motorPin1  = 9;  // Pin 14 of L293
+const int motorPin2  = 8;  // Pin 10 of L293
+//Motor B
+const int motorPin3  = 6; // Pin  7 of L293
+const int motorPin4  = 7;  // Pin  2 of L293
+
+
+const int IN_A0 = A0; 
+const int IN_D1 = A1;
+
+const int IN_A3 = A3; 
+const int IN_D4 = A4;
+
+bool value_D0;
+bool value_D4;
+
+// Define constants for motor speeds
+const int MOTOR_STOP = 0;
+const int MOTOR_FULL_SPEED = 244;
+
+// Define functions for forward and reverse movement
+void moveForward() {
+  analogWrite(motorPin1, MOTOR_STOP);       //reverse
+  analogWrite(motorPin2, MOTOR_FULL_SPEED); // forward
+  analogWrite(motorPin3, MOTOR_FULL_SPEED); // forward
+  analogWrite(motorPin4, MOTOR_STOP);       //reverse
+  }
+
+void moveBackward() {
+  analogWrite(motorPin1, MOTOR_FULL_SPEED);       //reverse
+  analogWrite(motorPin2, MOTOR_STOP); // forward
+  analogWrite(motorPin3, MOTOR_STOP);       // forward
+  analogWrite(motorPin4, MOTOR_FULL_SPEED); //reverse
+  }
+void turnAround(){
+  analogWrite(motorPin1, MOTOR_FULL_SPEED);       //reverse
+  analogWrite(motorPin2, MOTOR_STOP); // forward
+  analogWrite(motorPin3, MOTOR_FULL_SPEED);       // forward
+  analogWrite(motorPin4, MOTOR_STOP); //reverse
+  }
+void turnRight(){
+  analogWrite(motorPin1, MOTOR_FULL_SPEED); //reverse
+  analogWrite(motorPin2, MOTOR_STOP); // forward
+  analogWrite(motorPin3, MOTOR_FULL_SPEED); // forward
+  analogWrite(motorPin4, MOTOR_STOP);//reverse
+}
+void turnLeft(){
+  analogWrite(motorPin1, MOTOR_STOP); //reverse
+  analogWrite(motorPin2, MOTOR_FULL_SPEED); // forward
+  analogWrite(motorPin3, MOTOR_STOP); // forward
+  analogWrite(motorPin4, MOTOR_FULL_SPEED);//reverse
+}
+void attack(){
+    analogWrite(motorPin1, MOTOR_STOP); //reverse
+    analogWrite(motorPin2, MOTOR_FULL_SPEED); // forward
+    analogWrite(motorPin3, MOTOR_FULL_SPEED); // forward
+    analogWrite(motorPin4, MOTOR_STOP);//reverse
+}
+
+void setup() {
+  Serial.begin(9600);
+//Set pins as outputs
+//  motor sensor
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(motorPin3, OUTPUT);
+  pinMode(motorPin4, OUTPUT);
+
+// line sensor
+
+  pinMode (IN_A0, INPUT);
+  pinMode (IN_D1, INPUT);
+  pinMode (IN_A3, INPUT);
+  pinMode (IN_D4, INPUT);
+
+
+}
+
+void loop() {
+
+  value_D0 = digitalRead(IN_A0);// reads the digital input from the IR distance sensor
+  value_D4 = digitalRead(IN_D1);// reads the digital input from the IR distance sensor
+
+
+  delay(100);
+
+
+  Serial.print(" Distance Front_Right: ");
+  Serial.print(sonar_front_right.ping_cm()); 
+  Serial.print(" Distance Front_Left: ");
+  Serial.print(sonar_fornt_left.ping_cm());   
+
+  Serial.print(" Distance Right: ");
+  Serial.print(sonar_right.ping_cm()); 
+  Serial.print(" Distance Left: ");
+  Serial.print(sonar_left.ping_cm());
+
+  Serial.print(" D0:");
+  Serial.print(value_D0);
+
+  Serial.print(" D4:");
+  Serial.println(value_D4);
+
+
+
+
+// Check values of sensors and move accordingly
+if (value_D0 == 1 and value_D4 == 1) {
+  moveForward();
+    if(sonar_front_right.ping_cm() and sonar_fornt_left.ping_cm() < ATTACK){
+      attack();
+    }
+    else if (sonar_left.ping_cm() < ATTACKside){
+      turnLeft();
+    }
+    else if (sonar_right.ping_cm() < ATTACKside){
+      turnRight();
+    }
+
+} 
+else if (value_D0 == 0 || value_D4 == 0) {
+  moveBackward();
+  delay(1500);
+  turnAround();
+  delay(1000);
+
+} 
+
+}
