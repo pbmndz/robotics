@@ -7,12 +7,10 @@
 #include <spi4teensy3.h>
 #endif
 #include <SPI.h>
-const int motorPin1  = 3;  // Pin 14 of L293
-const int motorPin2  = 4;  // Pin 10 of L293
-//Motor B
-const int motorPin3  = 5; // Pin  7 of L293
-const int motorPin4  = 6;  // Pin  2 of L293
-
+int IN1 = 3;       //control pin for first motor
+int IN2 = 4;       //control pin for first motor
+int IN3 = 5;        //control pin for second motor
+int IN4 = 6;        //control pin for second motor
 USB Usb;
 //USBHub Hub1(&Usb); // Some dongles have a hub inside
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
@@ -28,49 +26,11 @@ PS4BT PS4(&Btd, PAIR);
 bool printAngle, printTouch;
 uint8_t oldL2Value, oldR2Value;
 
-
-// Define constants for motor speeds
-const int MOTOR_STOP = 0;
-const int MOTOR_FULL_SPEED = 244;
-
-// Define functions for forward and reverse movement
-void moveForward() {
-  analogWrite(motorPin1, MOTOR_STOP );       // reverse
-  analogWrite(motorPin2, MOTOR_FULL_SPEED); // forward
-  analogWrite(motorPin3, MOTOR_STOP); //reverse
-  analogWrite(motorPin4, MOTOR_FULL_SPEED);       // forward
-}
-void moveBackward() {
-  analogWrite(motorPin1, MOTOR_FULL_SPEED );       // reverse
-  analogWrite(motorPin2, MOTOR_STOP); // forward
-  analogWrite(motorPin3, MOTOR_FULL_SPEED); //reverse
-  analogWrite(motorPin4, MOTOR_STOP);       // forward
-}
-void turnRight(){
-  analogWrite(motorPin1, 0);       // reverse
-  analogWrite(motorPin2, MOTOR_FULL_SPEED); // forward
-  analogWrite(motorPin3, MOTOR_FULL_SPEED); //reverse
-  analogWrite(motorPin4, 0);       // forward
-}
-void turnLeft(){
-  analogWrite(motorPin1, MOTOR_FULL_SPEED );       // reverse
-  analogWrite(motorPin2, 0); // forward
-  analogWrite(motorPin3, 0); //reverse
-  analogWrite(motorPin4, MOTOR_FULL_SPEED);       // forward
-}
-void attack(){
-  analogWrite(motorPin1, MOTOR_STOP );       // reverse
-  analogWrite(motorPin2, MOTOR_FULL_SPEED); // forward
-  analogWrite(motorPin3, MOTOR_STOP); //reverse
-  analogWrite(motorPin4, MOTOR_FULL_SPEED);       // forward
-}
-
 void setup() {
-  pinMode(motorPin1, OUTPUT);  
-  pinMode(motorPin2, OUTPUT);
-  pinMode(motorPin3, OUTPUT);  
-  pinMode(motorPin4, OUTPUT);
-  
+  pinMode(IN1, OUTPUT);  
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);  
+  pinMode(IN4, OUTPUT);
   Serial.begin(115200);
 #if !defined(__MIPSEL__)
   while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
@@ -81,52 +41,98 @@ void setup() {
   }
   Serial.print(F("\r\nPS4 Bluetooth Library Started"));
 
+
 }
 void loop() {
   Usb.Task();
 
   if (PS4.connected()) {
+      Serial.print(PS4.getAnalogHat(LeftHatY));
+      Serial.print(" ");
+      Serial.println(PS4.getAnalogHat(RightHatY));
+
   //  if (PS4.getAnalogHat(LeftHatX) > 137 || PS4.getAnalogHat(LeftHatX) < 117 || PS4.getAnalogHat(LeftHatY) > 137 || PS4.getAnalogHat(LeftHatY) < 117 || PS4.getAnalogHat(RightHatX) > 137 || PS4.getAnalogHat(RightHatX) < 117 || PS4.getAnalogHat(RightHatY) > 137 || PS4.getAnalogHat(RightHatY) < 117) {
-      if(PS4.getAnalogHat(LeftHatX)<10)
-      {
-      moveForward();
-    Serial.print("\nHatX: 50 ");
-        }
+//      if(PS4.getAnalogHat(LeftHatX))
+//      {}
 //      else if(PS4.getAnalogHat(LeftHatX)>240)
-//      {
+//      {}
+
+      int leftHatY = PS4.getAnalogHat(LeftHatY);
+      int rightHatY = PS4.getAnalogHat(RightHatY);
+      
+      if(leftHatY >= 0 && leftHatY <= 20 && rightHatY >= 0 && rightHatY <= 20)
+      {
+          digitalWrite(IN1, LOW);
+          digitalWrite(IN2, HIGH);
+          digitalWrite(IN3, HIGH );
+          digitalWrite(IN4, LOW);
+          Serial.println("\nHatY: 0 ");
+      }
+      else if(leftHatY >= 230 && leftHatY <= 255 && rightHatY >= 230 && rightHatY <= 255)
+      {
+          digitalWrite(IN1, HIGH);
+          digitalWrite(IN2, LOW);
+          digitalWrite(IN3, LOW);
+          digitalWrite(IN4, HIGH );
+          Serial.println("\nHatY: 255 ");
+      }
+      else if(leftHatY >= 0 && leftHatY <= 20 && rightHatY >= 230 && rightHatY <= 255)
+      {
+          digitalWrite(IN1, LOW);
+          digitalWrite(IN2, HIGH );
+          digitalWrite(IN3, LOW);
+          digitalWrite(IN4, HIGH);
+          Serial.println("\nHatY: 255 ");
+      }
+      else if(leftHatY >= 230 && leftHatY <= 255 && rightHatY >= 0 && rightHatY <= 20)
+      {
+          digitalWrite(IN1, HIGH );
+          digitalWrite(IN2, LOW);
+          digitalWrite(IN3, HIGH);
+          digitalWrite(IN4, LOW);
+          Serial.println("\nHatY: 255 ");
+      }      
+      
+      else if(leftHatY >= 120 && leftHatY <= 140){
+          digitalWrite(IN1, LOW);
+          digitalWrite(IN2, LOW);
+          digitalWrite(IN3, LOW);
+          digitalWrite(IN4, LOW);
+              Serial.println("\nrotate the joystick ");
+             }   
+//      else if(PS4.getAnalogHat(LeftHatY) < 20)
+//        {
 //    digitalWrite(IN1, LOW);
 //    digitalWrite(IN2, HIGH);
-//    digitalWrite(IN3, HIGH);
+//    digitalWrite(IN3, LOW);
 //    digitalWrite(IN4, LOW);
 //    
-//    Serial.print("\nHatX: 200 ");
-//        }
-//        else if(PS4.getAnalogHat(LeftHatY) < 20)
+//    Serial.print("\nHatY: 50 ");
+//          }
+//      else if(PS4.getAnalogHat(LeftHatY) > 200)
 //        {
 //    digitalWrite(IN1, HIGH);
+//    digitalWrite(IN2, LOW);
+//    digitalWrite(IN3, LOW);
+//    digitalWrite(IN4, LOW);
+//        Serial.print("\nHatY: 200 ");
+//          }
+//      else if(PS4.getAnalogHat(RightHatY) < 20)
+//        {
+//    digitalWrite(IN1, LOW);
 //    digitalWrite(IN2, LOW);
 //    digitalWrite(IN3, HIGH);
 //    digitalWrite(IN4, LOW);
 //    
 //    Serial.print("\nHatY: 50 ");
 //          }
-//          else if(PS4.getAnalogHat(LeftHatY) > 200)
+//      else if(PS4.getAnalogHat(RightHatY) > 200)
 //        {
 //    digitalWrite(IN1, LOW);
-//    digitalWrite(IN2, HIGH);
+//    digitalWrite(IN2, LOW);
 //    digitalWrite(IN3, LOW);
 //    digitalWrite(IN4, HIGH);
 //        Serial.print("\nHatY: 200 ");
 //          }
-//        else {
-//    digitalWrite(IN1, LOW);
-//    digitalWrite(IN2, LOW);
-//    digitalWrite(IN3, LOW);
-//    digitalWrite(IN4, LOW);
-//        Serial.print("\nrotate the joystick ");
-//         
-//
-//          }
-//      
-}
-}
+ 
+}}
