@@ -1,0 +1,171 @@
+#include <Arduino.h>
+#include <SharpIR.h>
+#include <NewPing.h>
+//L293D
+
+//Motor A
+const int motorPin1  = 3;  
+const int motorPin2  = 4;  
+//Motor B
+const int motorPin3  = 5; 
+const int motorPin4  = 6; 
+
+// Define constants for motor speeds
+const int MOTOR_STOP = 0;
+const int MOTOR_FULL_SPEED = 244;
+
+// Define functions for forward and reverse movement
+// The movement may vary depending on where you place the DC motor on the L293D
+void turnLeft() {
+  analogWrite(motorPin1, MOTOR_STOP );       
+  analogWrite(motorPin2, MOTOR_FULL_SPEED); 
+  analogWrite(motorPin3, MOTOR_STOP); 
+  analogWrite(motorPin4, MOTOR_FULL_SPEED);       
+}
+void turnRight() {
+  analogWrite(motorPin1, MOTOR_FULL_SPEED );       
+  analogWrite(motorPin2, MOTOR_STOP); 
+  analogWrite(motorPin3, MOTOR_FULL_SPEED); 
+  analogWrite(motorPin4, MOTOR_STOP);       
+}
+void forward(){
+  analogWrite(motorPin1, 0);       
+  analogWrite(motorPin2, MOTOR_FULL_SPEED); 
+  analogWrite(motorPin3, MOTOR_FULL_SPEED); 
+  analogWrite(motorPin4, 0);       
+}
+void backward(){
+  analogWrite(motorPin1, MOTOR_FULL_SPEED );       
+  analogWrite(motorPin2, 0); 
+  analogWrite(motorPin3, 0); 
+  analogWrite(motorPin4, MOTOR_FULL_SPEED);       
+}
+//2 ultrasonic ultrasonic sensor 
+// RIGHT
+#define TRIGGER_PIN_RIGHT   12  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_RIGHT      13  // Arduino pin tied to echo pin on the ultrasonic sensor.
+
+// LEFT
+#define TRIGGER_PIN_LEFT   11  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_LEFT      10 // Arduino pin tied to echo pin on the ultrasonic sensor.
+
+#define MAX_DISTANCE_FORNT 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define MAX_DISTANCE_SIDE 300
+#define ATTACKside 40
+
+NewPing sonar_right(TRIGGER_PIN_RIGHT, ECHO_PIN_RIGHT, MAX_DISTANCE_SIDE); // NewPing setup of pins and maximum distance.
+NewPing sonar_left(TRIGGER_PIN_LEFT, ECHO_PIN_LEFT, MAX_DISTANCE_SIDE); // NewPing setup of pins and maximum distance.
+  
+//LEFT AND RIGTH
+// line
+#define SensorL A2
+#define SensorR A1
+#define SensorBR A0
+#define SensorBL A3
+int value_DL = SensorL;
+int value_DR = SensorR;
+int value_BR = SensorBR;
+int value_BL = SensorBL;
+
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FOR SHARP
+SharpIR sensorR( SharpIR::GP2Y0A41SK0F, A5 );
+SharpIR sensorL( SharpIR::GP2Y0A41SK0F, A4 );
+
+
+void setup() {
+Serial.begin(9600);
+//Set pins as outputs
+//  motor 
+pinMode(motorPin1, OUTPUT);
+pinMode(motorPin2, OUTPUT);
+pinMode(motorPin3, OUTPUT);
+pinMode(motorPin4, OUTPUT);
+
+// line sensor
+pinMode(SensorR, INPUT);
+pinMode(SensorL, INPUT);
+
+}
+
+void loop() {
+// line
+value_DR = analogRead(SensorR);// reads the digital input from the IR distance sensor
+value_DL = analogRead(SensorL);// reads the digital input from the IR distance sensor
+value_BR = analogRead(SensorBR);
+value_BL = analogRead(SensorBL);
+// front sensor
+int distanceR = sensorR.getDistance(); //Calculate the distance in centimeters and store the value in a variable
+int distanceL = sensorL.getDistance(); //Calculate the distance in centimeters and store the value in a variable
+
+
+//For debug/checking sensor
+
+//LINE
+//Serial.print(" DR:");
+//Serial.print(value_DR);
+//Serial.print(" DL:");
+//Serial.print(value_DL); 
+//Serial.print(" BL:");
+//Serial.print(value_BL);
+//Serial.print(" BR:");
+//Serial.print(value_BR); 
+////FRONT
+//Serial.print(" ");
+//Serial.print("FR");
+//Serial.print( distanceR ); 
+//Serial.print(" ");
+//Serial.print("FL");
+//Serial.print( distanceL );
+//// side
+//Serial.print(" ");
+//Serial.print(sonar_right.ping_cm());
+//Serial.print("R   L");
+//Serial.println(sonar_left.ping_cm());
+
+// movement
+
+if (value_DR >= 70 and value_DL >= 70){
+  forward();
+  if (distanceR <= 7 or distanceL <= 7) {
+    forward();
+  } else if (sonar_right.ping_cm() < 40) {
+    // Turn right continuously until distanceR is less than or equal to 7 cm
+    while (distanceR > 7) {
+      turnRight();
+    }
+  } else if (sonar_left.ping_cm() < 40) {
+    // Turn left continuously until distanceL is less than or equal to 7 cm
+    while (distanceL > 7) {
+      turnLeft();
+    }
+  }
+}
+else if (value_DR <= 100){
+ backward();
+ delay(100);
+ turnRight();
+ }
+else if(value_DL <=100){
+ backward();
+ delay(100);
+ turnLeft();
+}
+else if(value_DR <= 100 or value_DL <= 100){
+ backward();
+ delay(300);
+ turnLeft();
+ delay(500);
+ }
+else if (value_DR <= 100 and value_BR <= 100){
+ backward();
+ delay(400);
+ turnRight();
+}
+else if (value_DL <= 100 and value_BL <= 100){
+ backward();
+ delay(400);
+ turnLeft();
+}
+
+}
