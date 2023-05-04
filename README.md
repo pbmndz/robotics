@@ -1,7 +1,10 @@
 
 # **Robotics Project: Autonomous and RC Sumobot controlled by PS4 with PSBT Library**
 
-This is a robotics project that includes an autonomous sumobot and remote-controlled (RC) sumobot, controlled by a PS4 controller using the PSBT (PlayStation Bluetooth) library. The goal of the project is to demonstrate how robotics can be used to build remote-controlled, autonomous machines that can be operated by common objects like a PS4 controller.
+Welcome to the Robotics Project, featuring an autonomous and remote-controlled (RC) sumobot that is designed to battle with its opponents. The autonomous mode is programmed to detect the white lines on the border of the ring, locate the enemy sumobot, and attack it using its sensors and motors. The RC mode is controlled using a PS4 controller with the PSBT (PlayStation Bluetooth) library.The RC sumobot can be controlled by a human operator using the PS4 controller, whereas the autonomous sumobot is programmed to make its own decisions and movements using a variety of sensors. In a sumobot competition, each sumobot is made to push its competitor out of a circular ring.
+
+
+
 
 # Features
 The project includes the following features:
