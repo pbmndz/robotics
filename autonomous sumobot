@@ -11,8 +11,23 @@ const int motorPin3  = 5;
 const int motorPin4  = 6; 
 
 // Define constants for motor speeds
+// you can use any speed in this int percent
+
 const int MOTOR_STOP = 0;
+const int MOTOR_10_SPEED = 24.4;
+const int MOTOR_20_SPEED = 48.8;
+const int MOTOR_30_SPEED = 73.2;
+const int MOTOR_40_SPEED = 97.6;
+const int MOTOR_50_SPEED = 122;
+const int MOTOR_60_SPEED = 146.4;
+const int MOTOR_70_SPEED = 170.8;
+const int MOTOR_80_SPEED = 195.2;
+const int MOTOR_90_SPEED = 219.6;
+const int MOTOR_100_SPEED = 244;
+
 const int MOTOR_FULL_SPEED = 244;
+const int MOTOR_HALF_SPEED = 122;
+
 
 // Define functions for forward and reverse movement
 // The movement may vary depending on where you place the DC motor on the L293D
@@ -39,6 +54,12 @@ void backward(){
   analogWrite(motorPin2, 0); 
   analogWrite(motorPin3, 0); 
   analogWrite(motorPin4, MOTOR_FULL_SPEED);       
+}
+void stop(){
+  analogWrite(motorPin1, 0 );       
+  analogWrite(motorPin2, 0); 
+  analogWrite(motorPin3, 0); 
+  analogWrite(motorPin4, 0);      
 }
 //2 ultrasonic ultrasonic sensor 
 // RIGHT
@@ -99,73 +120,66 @@ int distanceR = sensorR.getDistance(); //Calculate the distance in centimeters a
 int distanceL = sensorL.getDistance(); //Calculate the distance in centimeters and store the value in a variable
 
 
-//For debug/checking sensor
-
-//LINE
-//Serial.print(" DR:");
-//Serial.print(value_DR);
-//Serial.print(" DL:");
-//Serial.print(value_DL); 
-//Serial.print(" BL:");
-//Serial.print(value_BL);
-//Serial.print(" BR:");
-//Serial.print(value_BR); 
-////FRONT
-//Serial.print(" ");
-//Serial.print("FR");
-//Serial.print( distanceR ); 
-//Serial.print(" ");
-//Serial.print("FL");
-//Serial.print( distanceL );
-//// side
-//Serial.print(" ");
-//Serial.print(sonar_right.ping_cm());
-//Serial.print("R   L");
-//Serial.println(sonar_left.ping_cm());
-
 // movement
-
-if (value_DR >= 70 and value_DL >= 70){
+if (distanceL < 8 or distanceR < 8) {
   forward();
-  if (distanceR <= 7 or distanceL <= 7) {
-    forward();
-  } else if (sonar_right.ping_cm() < 40) {
-    // Turn right continuously until distanceR is less than or equal to 7 cm
-    while (distanceR > 7) {
-      turnRight();
-    }
-  } else if (sonar_left.ping_cm() < 40) {
-    // Turn left continuously until distanceL is less than or equal to 7 cm
-    while (distanceL > 7) {
-      turnLeft();
-    }
+}
+if (value_DR >= 70 and value_DL >= 70){
+  if (sonar_left.ping_cm() < 13) {
+  while(distanceL > 10 and sonar_left.ping_cm() > 10){
+  turnLeft();
+  if(distanceL < 10){
+  break;
+  }
+  }
+  }
+  else if (sonar_right.ping_cm() < 13) {
+  while(distanceL > 10 and sonar_right.ping_cm() > 10){
+  turnRight();
+  if(distanceR < 10){
+  break;
+  }
+  }
   }
 }
-else if (value_DR <= 100){
- backward();
- delay(100);
- turnRight();
- }
-else if(value_DL <=100){
- backward();
- delay(100);
- turnLeft();
+else if (value_DR <= 100 and value_DL <= 100){
+  stop();
+  delay(50);
+  backward();
+  delay(300);
+  turnRight();
+  delay(400);
 }
-else if(value_DR <= 100 or value_DL <= 100){
+else if(value_DR <= 100){
+ stop();
+ delay(50);
  backward();
- delay(300);
+ delay(150);
  turnLeft();
- delay(500);
- }
-else if (value_DR <= 100 and value_BR <= 100){
+ delay(350);
+}
+else if(value_DL <= 100){
+ stop();
+ delay(50);
  backward();
- delay(400);
+ delay(150);
  turnRight();
+ delay(350);
+}
+else if (value_DR <= 100 and value_BR <= 100){
+  stop();
+  delay(50);
+  turnLeft();
+  delay(400);
 }
 else if (value_DL <= 100 and value_BL <= 100){
- backward();
- delay(400);
- turnLeft();
+  stop();
+  delay(50);
+  turnRight();
+  delay(400);
 }
-
+else {
+ stop();
+}
+ 
 }
