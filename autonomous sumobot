@@ -119,6 +119,29 @@ value_BL = analogRead(SensorBL);
 int distanceR = sensorR.getDistance(); //Calculate the distance in centimeters and store the value in a variable
 int distanceL = sensorL.getDistance(); //Calculate the distance in centimeters and store the value in a variable
 
+//For debug/checking sensor
+
+//LINE
+//Serial.print(" DR:");
+//Serial.print(value_DR);
+//Serial.print(" DL:");
+//Serial.print(value_DL); 
+//Serial.print(" BL:");
+//Serial.print(value_BL);
+//Serial.print(" BR:");
+//Serial.println(value_BR); 
+////FRONT
+//Serial.print(" ");
+//Serial.print("FR");
+//Serial.print( distanceR ); 
+//Serial.print(" ");
+//Serial.print("FL");
+//Serial.println( distanceL );
+//// side
+//Serial.print(" ");
+//Serial.print(sonar_right.ping_cm());
+//Serial.print("R   L");
+//Serial.println(sonar_left.ping_cm());
 
 // movement
 if (distanceL < 8 or distanceR < 8) {
