@@ -8,46 +8,22 @@ const int motorPin2 = 9;
 const int motorPin3 = 10;
 const int motorPin4 = 11;
 
+// Motor speed
 const int MOTOR_STOP = 0;
 const int MOTOR_HALF_SPEED = 160;
 const int MOTOR_FULL_SPEED = 244;
 const int MOTOR_ONE_FOURTH_SPEED = 100;
 
-void attack()
+//attack
+void attack() 
 {
   analogWrite(motorPin1, MOTOR_STOP);
   analogWrite(motorPin2, MOTOR_FULL_SPEED);
   analogWrite(motorPin3, MOTOR_FULL_SPEED);
   analogWrite(motorPin4, MOTOR_STOP);
 }
-void turnLeft()
-{
-  analogWrite(motorPin1, MOTOR_STOP);
-  analogWrite(motorPin2, MOTOR_HALF_SPEED);
-  analogWrite(motorPin3, MOTOR_STOP);
-  analogWrite(motorPin4, MOTOR_HALF_SPEED);
-}
-void turnLeft_AG()
-{
-  analogWrite(motorPin1, MOTOR_STOP);
-  analogWrite(motorPin2, MOTOR_FULL_SPEED);
-  analogWrite(motorPin3, MOTOR_STOP);
-  analogWrite(motorPin4, MOTOR_FULL_SPEED);
-}
-void turnRight()
-{
-  analogWrite(motorPin1, MOTOR_HALF_SPEED);
-  analogWrite(motorPin2, MOTOR_STOP);
-  analogWrite(motorPin3, MOTOR_HALF_SPEED);
-  analogWrite(motorPin4, MOTOR_STOP);
-}
-void turnRight_AG()
-{
-  analogWrite(motorPin1, MOTOR_FULL_SPEED);
-  analogWrite(motorPin2, MOTOR_STOP);
-  analogWrite(motorPin3, MOTOR_FULL_SPEED);
-  analogWrite(motorPin4, MOTOR_STOP);
-}
+
+// basic ////////////////////////////////////////////////
 void forward()
 {
   analogWrite(motorPin1, 0);
@@ -62,6 +38,45 @@ void backward()
   analogWrite(motorPin3, 0);
   analogWrite(motorPin4, MOTOR_HALF_SPEED);
 }
+void turnLeft()
+{
+  analogWrite(motorPin1, MOTOR_STOP);
+  analogWrite(motorPin2, MOTOR_HALF_SPEED);
+  analogWrite(motorPin3, MOTOR_STOP);
+  analogWrite(motorPin4, MOTOR_HALF_SPEED);
+}
+void turnRight()
+{
+  analogWrite(motorPin1, MOTOR_HALF_SPEED);
+  analogWrite(motorPin2, MOTOR_STOP);
+  analogWrite(motorPin3, MOTOR_HALF_SPEED);
+  analogWrite(motorPin4, MOTOR_STOP);
+}
+
+// aggressive ////////////////////////////////////////////////
+void forward_AG()
+{
+  analogWrite(motorPin1, 0);
+  analogWrite(motorPin2, MOTOR_FULL_SPEED);
+  analogWrite(motorPin3, MOTOR_FULL_SPEED);
+  analogWrite(motorPin4, 0);
+}
+void turnLeft_AG()
+{
+  analogWrite(motorPin1, MOTOR_STOP);
+  analogWrite(motorPin2, MOTOR_FULL_SPEED);
+  analogWrite(motorPin3, MOTOR_STOP);
+  analogWrite(motorPin4, MOTOR_FULL_SPEED);
+}
+void turnRight_AG()
+{
+  analogWrite(motorPin1, MOTOR_FULL_SPEED);
+  analogWrite(motorPin2, MOTOR_STOP);
+  analogWrite(motorPin3, MOTOR_FULL_SPEED);
+  analogWrite(motorPin4, MOTOR_STOP);
+}
+
+// roaming or searching ////////////////////////////////////////
 void slow_search()
 {
   analogWrite(motorPin1, 0);
@@ -70,7 +85,8 @@ void slow_search()
   analogWrite(motorPin4, 0);
 }
 
-// ultrasonic ultrasonic sensor
+
+// ultrasonic ultrasonic sensor ////////////////////////////////
 #define TRIGGER_PIN 2
 #define ECHO_PIN 3
 
@@ -83,13 +99,14 @@ void slow_search()
 #define TRIGGER_PIN_BACK 12
 #define ECHO_PIN_BACK 13
 
-#define MAX_DISTANCE 200 // Maximum distance to measure (in centimeters)
+#define MAX_DISTANCE 200
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 NewPing sonar_left(TRIGGER_PIN_LEFT, ECHO_PIN_LEFT, MAX_DISTANCE);
 NewPing sonar_right(TRIGGER_PIN_RIGHT, ECHO_PIN_RIGHT, MAX_DISTANCE);
 NewPing sonar_back(TRIGGER_PIN_BACK, ECHO_PIN_BACK, MAX_DISTANCE);
 
+// line tracing ////////////////////////////////////////////////
 #define SensorR A2
 #define SensorL A1
 #define SensorBR A3
@@ -99,8 +116,19 @@ int value_DR = SensorR;
 int value_DL = SensorL;
 int value_BR = SensorBR;
 int value_BL = SensorBL;
-int dipPin = A0; // analog pin for voltage divider input
-int dipIn = 0;   // holds divider voltage output translated by analogRead
+
+// for strategies ////////////////////////////////////////////////////////////////
+int dipPin = A0; 
+int dipIn = 0;   
+
+// for delay  ////////////////////////////////////////////////////////////////////
+const int maxDelay_sides = 1000;
+const int maxDelay_Wiper = 400;
+const int maxDelay_Wiper_forward = 200;
+
+int elapsed_time = 0;
+bool continue_delay = true;
+
 
 void setup()
 {
@@ -111,19 +139,24 @@ void setup()
   Serial.begin(9600);
 }
 
-void loop()
-{
-  value_DL = analogRead(SensorL);  // reads the digital input from the IR distance sensor
-  value_DR = analogRead(SensorR);  // reads the digital input from the IR distance sensor
-  value_BL = analogRead(SensorBR); // reads the digital input from the IR distance sensor
-  value_BR = analogRead(SensorBL); // reads the digital input from the IR distance sensor
+void loop(){
+  
+// line
+value_DL = analogRead(SensorL);  // reads the digital input from the IR distance sensor
+value_DR = analogRead(SensorR);  // reads the digital input from the IR distance sensor
+value_BL = analogRead(SensorBR); // reads the digital input from the IR distance sensor
+value_BR = analogRead(SensorBL); // reads the digital input from the IR distance sensor
 
-  dipIn = analogRead(dipPin);
+// ultrasonic
+int distance = sonar.ping_cm(); // Send ping, get ping time in microseconds (uS).
+int distance_left = sonar_left.ping_cm();
+int distance_right = sonar_right.ping_cm();
+int distance_back = sonar_back.ping_cm();
 
-  int distance = sonar.ping_cm(); // Send ping, get ping time in microseconds (uS).
-  int distance_left = sonar_left.ping_cm();
-  int distance_right = sonar_right.ping_cm();
-  int distance_back = sonar_back.ping_cm();
+// strategies
+dipIn = analogRead(dipPin);
+
+// debug 
 
   // Serial.print(value_DL);
   // Serial.print(" ");
@@ -141,6 +174,9 @@ void loop()
   // Serial.print(" ");
   // Serial.println(distance_back);
 
+
+// strategy 1 for slow search ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+if (dipIn >= 500 && dipIn <= 599) {
   if (value_DR > 100 or value_BR < 100)
   {
     backward();
@@ -156,89 +192,195 @@ void loop()
     delay(350);
   }
 
-  else if (value_DL < 100 and value_DR < 100 and value_BL > 100 and value_BR > 100)
-  {
-    const int maxDelay_sides = 1000;
-    int elapsed_time = 0;
-    bool continue_delay = true;
-
-    if (distance < 20)
-    {
+  else if (value_DL < 100 and value_DR < 100 and value_BL > 100 and value_BR > 100){
+    if (distance < 20){
       attack();
       continue_delay = false; 
     }
-    else if (distance_left < 15)
-    {
+    else if (distance_left < 15){
       turnRight_AG();
       elapsed_time = 0;
-      continue_delay = true; // Set the flag to true to start or continue the delay
-
-      while (elapsed_time < maxDelay_sides && continue_delay)
-      {
+      continue_delay = true; 
+      
+      while (elapsed_time < maxDelay_sides && continue_delay){
         delay(100);
         elapsed_time += 100;
-        distance = sonar.ping_cm(); // Update distance measurement during the delay
-
-        if (distance < 20)
-        {
+        distance = sonar.ping_cm(); 
+        if (distance < 20){
           attack();
-          continue_delay = false; // Set the flag to false to stop the delay
-        }
+          continue_delay = false; 
       }
     }
-    else if (distance_right < 15)
-    {
+  }
+    else if (distance_right < 15){
       turnLeft_AG();
       elapsed_time = 0;
-      continue_delay = true; // Set the flag to true to start or continue the delay
-      while (elapsed_time < maxDelay_sides && continue_delay)
-      {
+      continue_delay = true; 
+      
+      while (elapsed_time < maxDelay_sides && continue_delay){
         delay(100);
         elapsed_time += 100;
-        distance = sonar.ping_cm(); // Update distance measurement during the delay
-
-        if (distance < 20)
-        {
+        distance = sonar.ping_cm(); 
+        if (distance < 20){
           attack();
-          continue_delay = false; // Set the flag to false to stop the delay
-        }
+          continue_delay = false; 
       }
     }
-    else if (distance_back < 4)
-    {
+  }
+    else if (distance_back < 4){
       attack();
       delay(200);
       turnLeft_AG();
       elapsed_time = 0;
-      continue_delay = true; // Set the flag to true to start or continue the delay
+      continue_delay = true; 
 
-      while (elapsed_time < maxDelay_sides && continue_delay)
-      {
+      while (elapsed_time < maxDelay_sides && continue_delay){
         delay(100);
         elapsed_time += 100;
-        distance = sonar.ping_cm(); // Update distance measurement during the delay
+        distance = sonar.ping_cm(); 
 
-        if (distance < 20)
-        {
+        if (distance < 20){
           attack();
-          continue_delay = false; // Set the flag to false to stop the delay
+          continue_delay = false; 
         }
       }
     }
-    else
-    {
+    else{
       slow_search();
+      }
+    }
+  } 
+
+// Strategy 2 For wiper  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+else if (dipIn >= 800 && dipIn <= 899) {
+  if (value_DR > 100 or value_BR < 100)
+  {
+    backward();
+    delay(250);
+    turnRight();
+    delay(305);
+  }
+  else if (value_DL > 100 or value_BL < 100)
+  {
+    backward();
+    delay(250);
+    turnLeft();
+    delay(350);
+  }
+
+  else if (value_DL < 100 and value_DR < 100 and value_BL > 100 and value_BR > 100){
+    if (distance < 20){
+      attack();
+      continue_delay = false; 
+    }
+    else if (distance_left < 15){
+      turnRight_AG();
+      elapsed_time = 0;
+      continue_delay = true; 
+      
+      while (elapsed_time < maxDelay_sides && continue_delay){
+        delay(100);
+        elapsed_time += 100;
+        distance = sonar.ping_cm(); 
+        if (distance < 20){
+          attack();
+          continue_delay = false; 
+      }
+    }
+  }
+    else if (distance_right < 15){
+      turnLeft_AG();
+      elapsed_time = 0;
+      continue_delay = true; 
+      
+      while (elapsed_time < maxDelay_sides && continue_delay){
+        delay(100);
+        elapsed_time += 100;
+        distance = sonar.ping_cm(); 
+        if (distance < 20){
+          attack();
+          continue_delay = false; 
+      }
+    }
+  }
+    else if (distance_back < 4){
+      attack();
+      delay(200);
+      turnLeft_AG();
+      elapsed_time = 0;
+      continue_delay = true; 
+
+      while (elapsed_time < maxDelay_sides && continue_delay){
+        delay(100);
+        elapsed_time += 100;
+        distance = sonar.ping_cm(); 
+
+        if (distance < 20){
+          attack();
+          continue_delay = false; 
+      }
+    }
+  }
+    else{
+      turnLeft_AG();
+      elapsed_time = 0;
+      continue_delay = true; 
+      
+      while (elapsed_time < maxDelay_Wiper && continue_delay){
+        delay(100);
+        elapsed_time += 100;
+        distance = sonar.ping_cm(); 
+        if (distance < 20){
+          attack();
+          continue_delay = false; 
+    }
+  }
+      turnRight_AG();
+      elapsed_time = 0;
+      continue_delay = true; 
+      
+      while (elapsed_time < maxDelay_Wiper && continue_delay){
+        delay(100);
+        elapsed_time += 100;
+        distance = sonar.ping_cm(); 
+        if (distance < 20){
+          attack();
+          continue_delay = false; 
+    }
+  }
+      forward();
+      elapsed_time = 0;
+      continue_delay = true; 
+      
+      while (elapsed_time < maxDelay_Wiper_forward && continue_delay){
+        delay(100);
+        elapsed_time += 100;
+        distance = sonar.ping_cm(); 
+        if (distance < 20){
+          attack();
+          continue_delay = false;
+        }
+      }
     }
   }
 }
 
-// if (dipIn >= 500 && dipIn <= 599) {
-// } else if (dipIn >= 800 && dipIn <= 899) {
-// } else if (dipIn >= 60 && dipIn <= 200) {
-// } else if (dipIn >= 980 && dipIn <= 2000){
-//    Serial.println("function 4");
-// } else {
-//     // idle
-//    Serial.println("no function");
-//  }
-//
+
+// strategy 3 For ????? //////////////////////////////////////////////////
+else if (dipIn >= 60 && dipIn <= 200) {
+   Serial.println("function 3");
+
+}
+
+// strategy 4 For ????? //////////////////////////////////////////////////
+else if (dipIn >= 980 && dipIn <= 2000){
+   Serial.println("function 4");
+} 
+
+
+// idle
+else {
+   Serial.println("no function");
+ }
+
+}
