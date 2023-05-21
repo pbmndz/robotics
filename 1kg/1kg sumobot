@@ -1,6 +1,11 @@
 #include <Arduino.h>
 #include <NewPing.h>
 
+//       |\      _,,,---,,_
+// ZZZzz /,`.-'`'    -.  ;-;;,_
+//      |,4-  ) )-,_. ,\ (  `'-'
+//     '---''(_/--'  `-'\_)  enjoy my code -Paulo
+
 // Motor A
 const int motorPin1 = 8;
 const int motorPin2 = 9;
