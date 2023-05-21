@@ -126,7 +126,7 @@ int value_BL = SensorBL;
 int dipPin = A0; 
 int dipIn = 0;   
 
-// for delay  ////////////////////////////////////////////////////////////////////
+// for delay  ///////////////////////////////////////////////////////////////// ///
 const int maxDelay_sides = 1000;
 const int maxDelay_Wiper = 400;
 const int maxDelay_Wiper_forward = 200;
@@ -147,13 +147,13 @@ void setup()
 void loop(){
   
 // line
-value_DL = analogRead(SensorL);  // reads the digital input from the IR distance sensor
-value_DR = analogRead(SensorR);  // reads the digital input from the IR distance sensor
-value_BL = analogRead(SensorBR); // reads the digital input from the IR distance sensor
-value_BR = analogRead(SensorBL); // reads the digital input from the IR distance sensor
+value_DL = analogRead(SensorL);  
+value_DR = analogRead(SensorR);  
+value_BL = analogRead(SensorBR); 
+value_BR = analogRead(SensorBL); 
 
 // ultrasonic
-int distance = sonar.ping_cm(); // Send ping, get ping time in microseconds (uS).
+int distance = sonar.ping_cm(); 
 int distance_left = sonar_left.ping_cm();
 int distance_right = sonar_right.ping_cm();
 int distance_back = sonar_back.ping_cm();
