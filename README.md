@@ -72,4 +72,4 @@ To install and run this project, follow these steps:
 - Start the sumobot up and use your PS4 controller to control it.
 
 # Credits
- This robotics project was created by Paulo Benedict D. Mendoza, a student at City of Bacoor NHS Springville - Bacoor City, under the guidance of Sir Michael Angelo Cipat, as part of a robotics course.
+ This robotics project was created by Paulo Benedict D. Mendoza, a student at City of Bacoor NHS Springville - Bacoor City, under the guidance of Sir Michael Angelo Cipat, as part of a robotics.
